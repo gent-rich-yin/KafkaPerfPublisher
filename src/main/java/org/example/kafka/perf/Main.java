@@ -70,6 +70,7 @@ public class Main {
             if( currentTopic == null || currentMessageSize <= 0 || currentMessagePerSecond <= 0 ) {
                 updatePerfMessage("Waiting for valid config assignment");
                 sleep(1000);
+                continue;
             }
 
             stime = System.currentTimeMillis();
