@@ -5,12 +5,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin(originPatterns = "*")
 public class PerfServices {
-    @GetMapping("topic")
+    @GetMapping(value= "topic", produces="plain/text")
     public String getTopic() {
         return PerfStates.topic;
     }
 
-    @GetMapping("perfMessage")
+    @GetMapping(value= "perfMessage", produces="plain/text")
     public String getPerfMessage() {
         return PerfStates.perfMessage == null ? "" : PerfStates.perfMessage;
     }
