@@ -31,13 +31,13 @@ public class PerfServices {
     }
 
     @PostMapping("messageSize")
-    public void setMessageSize(@RequestBody int messageSize) {
-        PerfStates.messageSize = messageSize;
+    public void setMessageSize(@RequestBody String messageSize) {
+        PerfStates.messageSize = Integer.parseInt(messageSize);
     }
 
     @PostMapping("messagesPerSecond")
-    public void getMessagesPerSecond(@RequestBody int messagesPerSecond) {
-        PerfStates.messagesPerSecond = messagesPerSecond;
+    public void getMessagesPerSecond(@RequestBody String messagesPerSecond) {
+        PerfStates.messagesPerSecond = Integer.parseInt(messagesPerSecond);
     }
 
 }
