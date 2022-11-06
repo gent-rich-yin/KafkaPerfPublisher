@@ -57,7 +57,7 @@ public class Main {
             }
             long ftime = System.currentTimeMillis();
 
-            updatePerfMessage("Published {} messages in {}ms.", PerfStates.messagesPerSecond, ftime - stime);
+            updatePerfMessage("Published {0} messages in {1}ms.", PerfStates.messagesPerSecond, ftime - stime);
             if( ftime - stime < 1000 ) {
                 try {
                     Thread.sleep(1000 - (ftime - stime));
