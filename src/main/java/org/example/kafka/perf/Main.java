@@ -26,9 +26,6 @@ public class Main {
     int currentMessageIndex = 0;
 
     public static void main(String[] args) {
-        PerfStates.topic = args[0];
-        PerfStates.messageSize = Integer.parseInt(args[1]);
-        PerfStates.messagesPerSecond = Integer.parseInt((args[2]));
         SpringApplication.run(Main.class, args);
     }
 
@@ -43,10 +40,39 @@ public class Main {
     @EventListener(ApplicationReadyEvent.class)
     public void startPublishing() {
         initProducer();
+
+        String currentTopic = null;
+        int currentMessageSize = 0;
+        int currentMessagePerSecond = 0;
+        long stime = System.currentTimeMillis();
+
         messages = generateRandomStrings();
         updatePerfMessage("Start publishing...");
         while(true) {
-            long stime = System.currentTimeMillis();
+            if( currentTopic == null || !currentTopic.equals(PerfStates.topic)
+                    || currentMessageSize == 0 || currentMessageSize != PerfStates.messageSize
+                    || currentMessagePerSecond == 0 || currentMessagePerSecond != PerfStates.messagesPerSecond ) {
+                currentTopic = PerfStates.topic;
+                currentMessageSize = PerfStates.messageSize;
+                currentMessagePerSecond = PerfStates.messagesPerSecond;
+                stime = System.currentTimeMillis();
+                if( currentTopic != null && currentMessageSize > 0 && currentMessagePerSecond > 0 ) {
+                    updatePerfMessage("Start generating radom strings");
+                    messages = generateRandomStrings();
+                    sleep(1000);
+                    updatePerfMessage("Done generating radom strings");
+                    sleep(1000);
+                    updatePerfMessage("Start publishing...");
+                    sleep(1000);
+                }
+            }
+
+            if( currentTopic == null || currentMessageSize <= 0 || currentMessagePerSecond <= 0 ) {
+                updatePerfMessage("Waiting for valid config assignment");
+                sleep(1000);
+            }
+
+            stime = System.currentTimeMillis();
             for(int i = 0; i< PerfStates.messagesPerSecond; i++ ) {
                 ProducerRecord<String, String> producerRecord =
                         new ProducerRecord<>(PerfStates.topic, Integer.toString(i), messages[currentMessageIndex++]);
@@ -59,10 +85,7 @@ public class Main {
 
             updatePerfMessage("Published {0} messages in {1}ms.", PerfStates.messagesPerSecond, ftime - stime);
             if( ftime - stime < 1000 ) {
-                try {
-                    Thread.sleep(1000 - (ftime - stime));
-                } catch (InterruptedException e) {
-                }
+                sleep(1000 - (ftime - stime));
             }
         }
     }
@@ -88,5 +111,13 @@ public class Main {
             strings[i] = generateRandomString();
         }
         return strings;
+    }
+
+    public static void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

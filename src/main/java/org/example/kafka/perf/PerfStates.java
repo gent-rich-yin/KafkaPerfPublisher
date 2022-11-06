@@ -2,8 +2,8 @@ package org.example.kafka.perf;
 
 public class PerfStates {
     static String topic;
-    static int messageSize;
-    static int messagesPerSecond;
+    static int messageSize = 1000;
+    static int messagesPerSecond = 1000;
 
     static String perfMessage = "";
 }
