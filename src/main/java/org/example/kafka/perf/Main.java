@@ -18,9 +18,6 @@ import java.util.Properties;
 public class Main {
     static Logger logger = LoggerFactory.getLogger(Main.class);
 
-    static String topic;
-    static int messageSize;
-    static int messagesPerSecond;
     KafkaProducer<String, String> producer;
     @Value("${KAFKA.SERVERS}")
     String kafkaServers;
@@ -28,9 +25,9 @@ public class Main {
     int currentMessageIndex = 0;
 
     public static void main(String[] args) {
-        topic = args[0];
-        messageSize = Integer.parseInt(args[1]);
-        messagesPerSecond = Integer.parseInt((args[2]));
+        PerfStates.topic = args[0];
+        PerfStates.messageSize = Integer.parseInt(args[1]);
+        PerfStates.messagesPerSecond = Integer.parseInt((args[2]));
         SpringApplication.run(Main.class, args);
     }
 
@@ -46,19 +43,20 @@ public class Main {
     public void startPublishing() {
         initProducer();
         messages = generateRandomStrings();
-        logger.info("Start publishing...");
+        updatePerfMessage("Start publishing...");
         while(true) {
             long stime = System.currentTimeMillis();
-            for( int i=0; i<messagesPerSecond; i++ ) {
+            for(int i = 0; i< PerfStates.messagesPerSecond; i++ ) {
                 ProducerRecord<String, String> producerRecord =
-                        new ProducerRecord<>(topic, Integer.toString(i), messages[currentMessageIndex++]);
+                        new ProducerRecord<>(PerfStates.topic, Integer.toString(i), messages[currentMessageIndex++]);
                 if( currentMessageIndex >= messages.length ) {
                     currentMessageIndex = 0;
                 }
                 producer.send(producerRecord);
             }
             long ftime = System.currentTimeMillis();
-            logger.info("Published {} messages in {}ms.", messagesPerSecond, ftime - stime);
+
+            updatePerfMessage("Published {} messages in {}ms.", PerfStates.messagesPerSecond, ftime - stime);
             if( ftime - stime < 1000 ) {
                 try {
                     Thread.sleep(1000 - (ftime - stime));
@@ -68,10 +66,15 @@ public class Main {
         }
     }
 
+    private static void updatePerfMessage(String s, Object... args) {
+        PerfStates.perfMessage = String.format(s, args);
+        logger.info(PerfStates.perfMessage);
+    }
+
     public static String generateRandomString() {
         char[] letters = "abcdefghijklmnopqrstuvwxyz".toCharArray();
         StringBuilder builder = new StringBuilder();
-        for( int i=0; i<messageSize; i++ ) {
+        for(int i = 0; i< PerfStates.messageSize; i++ ) {
             int index = (int) (Math.random() * 26);
             builder.append(letters[index]);
         }
@@ -79,7 +82,7 @@ public class Main {
     }
 
     public static String[] generateRandomStrings() {
-        String[] strings = new String[messagesPerSecond * 10];
+        String[] strings = new String[PerfStates.messagesPerSecond * 10];
         for( int i=0; i<strings.length; i++ ) {
             strings[i] = generateRandomString();
         }
