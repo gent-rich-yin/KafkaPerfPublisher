@@ -61,7 +61,7 @@ public class Main {
             logger.info("Published {} messages in {}ms.", messagesPerSecond, ftime - stime);
             if( ftime - stime < 1000 ) {
                 try {
-                    Thread.sleep(ftime - stime);
+                    Thread.sleep(1000 - (ftime - stime));
                 } catch (InterruptedException e) {
                 }
             }
