@@ -57,10 +57,10 @@ public class Main {
                 currentMessagePerSecond = PerfStates.messagesPerSecond;
                 stime = System.currentTimeMillis();
                 if( currentTopic != null && currentMessageSize > 0 && currentMessagePerSecond > 0 ) {
-                    updatePerfMessage("Start generating radom strings");
+                    updatePerfMessage("Start generating random strings");
                     messages = generateRandomStrings();
                     sleep(1000);
-                    updatePerfMessage("Done generating radom strings");
+                    updatePerfMessage("Done generating random strings");
                     sleep(1000);
                     updatePerfMessage("Start publishing...");
                     sleep(1000);
