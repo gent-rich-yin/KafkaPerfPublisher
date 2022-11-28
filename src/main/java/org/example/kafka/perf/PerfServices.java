@@ -25,19 +25,19 @@ public class PerfServices {
         return PerfStates.messageSize;
     }
 
-    @GetMapping("messagesPerSecond")
-    public int getMessagesPerSecond() {
-        return PerfStates.messagesPerSecond;
-    }
+//    @GetMapping("messagesPerSecond")
+//    public int getMessagesPerSecond() {
+//        return PerfStates.messagesPerSecond;
+//    }
 
     @PostMapping("messageSize")
     public void setMessageSize(@RequestBody String messageSize) {
         PerfStates.messageSize = Integer.parseInt(messageSize);
     }
 
-    @PostMapping("messagesPerSecond")
-    public void getMessagesPerSecond(@RequestBody String messagesPerSecond) {
-        PerfStates.messagesPerSecond = Integer.parseInt(messagesPerSecond);
-    }
+//    @PostMapping("messagesPerSecond")
+//    public void getMessagesPerSecond(@RequestBody String messagesPerSecond) {
+//        PerfStates.messagesPerSecond = Integer.parseInt(messagesPerSecond);
+//    }
 
 }

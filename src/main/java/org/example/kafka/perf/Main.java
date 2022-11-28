@@ -18,6 +18,7 @@ import java.util.Properties;
 @SpringBootApplication
 public class Main {
     static Logger logger = LoggerFactory.getLogger(Main.class);
+    static int NUM_OF_MESSAGES = 1000;
 
     KafkaProducer<String, String> producer;
     @Value("${KAFKA.SERVERS}")
@@ -43,20 +44,16 @@ public class Main {
 
         String currentTopic = null;
         int currentMessageSize = 0;
-        int currentMessagePerSecond = 0;
-        long stime = System.currentTimeMillis();
+        long stime = 0;
 
         messages = generateRandomStrings();
         updatePerfMessage("Start publishing...");
         while(true) {
             if( currentTopic == null || !currentTopic.equals(PerfStates.topic)
-                    || currentMessageSize == 0 || currentMessageSize != PerfStates.messageSize
-                    || currentMessagePerSecond == 0 || currentMessagePerSecond != PerfStates.messagesPerSecond ) {
+                    || currentMessageSize == 0 || currentMessageSize != PerfStates.messageSize ) {
                 currentTopic = PerfStates.topic;
                 currentMessageSize = PerfStates.messageSize;
-                currentMessagePerSecond = PerfStates.messagesPerSecond;
-                stime = System.currentTimeMillis();
-                if( currentTopic != null && currentMessageSize > 0 && currentMessagePerSecond > 0 ) {
+                if( currentTopic != null && currentMessageSize > 0 ) {
                     updatePerfMessage("Start generating random strings");
                     messages = generateRandomStrings();
                     sleep(1000);
@@ -67,26 +64,29 @@ public class Main {
                 }
             }
 
-            if( currentTopic == null || currentMessageSize <= 0 || currentMessagePerSecond <= 0 ) {
+            if( currentTopic == null || currentMessageSize <= 0 ) {
                 updatePerfMessage("Waiting for valid config assignment");
                 sleep(1000);
                 continue;
             }
 
             stime = System.currentTimeMillis();
-            for(int i = 0; i< PerfStates.messagesPerSecond; i++ ) {
+            int count = 1;
+            int messagesSentLastSecond = 0;
+            while( true ) {
                 ProducerRecord<String, String> producerRecord =
-                        new ProducerRecord<>(PerfStates.topic, Integer.toString(i), messages[currentMessageIndex++]);
-                if( currentMessageIndex >= messages.length ) {
+                        new ProducerRecord<>(PerfStates.topic, Integer.toString(count++), messages[currentMessageIndex++]);
+                if( currentMessageIndex >= NUM_OF_MESSAGES ) {
                     currentMessageIndex = 0;
                 }
                 producer.send(producerRecord);
-            }
-            long ftime = System.currentTimeMillis();
-
-            updatePerfMessage("Published {0} messages in {1}ms.", PerfStates.messagesPerSecond, ftime - stime);
-            if( ftime - stime < 1000 ) {
-                sleep(1000 - (ftime - stime));
+                messagesSentLastSecond++;
+                long ftime = System.currentTimeMillis();
+                if( ftime - stime > 1000 ) {
+                    updatePerfMessage("messagesSentLastSecond: {0}", messagesSentLastSecond);
+                    stime = ftime;
+                    messagesSentLastSecond = 0;
+                }
             }
         }
     }
@@ -107,7 +107,7 @@ public class Main {
     }
 
     public static String[] generateRandomStrings() {
-        String[] strings = new String[PerfStates.messagesPerSecond * 10];
+        String[] strings = new String[NUM_OF_MESSAGES];
         for( int i=0; i<strings.length; i++ ) {
             strings[i] = generateRandomString();
         }
