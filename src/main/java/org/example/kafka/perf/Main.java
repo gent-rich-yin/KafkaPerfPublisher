@@ -44,7 +44,7 @@ public class Main {
 
         String currentTopic = null;
         int currentMessageSize = 0;
-        long stime = 0;
+        long stime;
 
         messages = generateRandomStrings();
         updatePerfMessage("Start publishing...");
@@ -73,7 +73,8 @@ public class Main {
             stime = System.currentTimeMillis();
             int count = 1;
             int messagesSentLastSecond = 0;
-            while( true ) {
+            while( !(!currentTopic.equals(PerfStates.topic)
+                    || currentMessageSize != PerfStates.messageSize) ) {
                 ProducerRecord<String, String> producerRecord =
                         new ProducerRecord<>(PerfStates.topic, Integer.toString(count++), messages[currentMessageIndex++]);
                 if( currentMessageIndex >= NUM_OF_MESSAGES ) {
@@ -121,4 +122,5 @@ public class Main {
             throw new RuntimeException(e);
         }
     }
+
 }
